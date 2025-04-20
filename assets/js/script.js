@@ -47,58 +47,82 @@ class Task {
         this.completed = !this.completed;
     }
 }
-
-class TaskSync {
+class TaskSync extends TaskList {
     constructor() {
-        this.tasks = [];
+        super();
+        this.isBluetoothSupported = 'bluetooth' in navigator;
     }
 
-    sync() {
-        if ('bluetooth' in navigator) {
-            console.log('Web Bluetooth is supported!');
-            navigator.bluetooth.requestDevice({
-                filters: [
-                    {
-                        services: ['send-data'] 
-                    }
-                ]
-            }).then(device => {
-                console.log('Device connected:', device);
-                return device.gatt.connect();
-            }).then(server => {
-                console.log('Connected to Bluetooth device');
-                return server.getPrimaryService('send-data');
-            }).then(service => {
-                console.log('Service found:', service);
-                return service.getCharacteristic('task-characteristic'); 
-            }).then(characteristic => {
-                console.log('Characteristic found:', characteristic);
-                return characteristic.readValue();
-            }).then(value => {
-                const receivedData = new TextDecoder().decode(value);
-                console.log('Received data from Bluetooth device:', receivedData);
-                this.updateTasksFromBluetooth(receivedData);
-            }).catch(error => {
-                console.log('Error connecting to Bluetooth device:', error);
+    async sync() {
+        if (!this.isBluetoothSupported) {
+            alert('Web Bluetooth is not supported');
+            throw new Error('Web Bluetooth is not supported');
+        }
+
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{ services: ['send-data'] }],
+                optionalServices: ['send-data']
             });
-        } else {
-            console.log('Web Bluetooth is not supported!');
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('send-data');
+            const characteristic = await service.getCharacteristic('task-characteristic');
+            const value = await characteristic.readValue();
+            const receivedData = new TextDecoder().decode(value);
+            this.updateTasksFromBluetooth(receivedData);
+        } catch (error) {
+            alert(`Failed to sync tasks: ${error.message}`);
+            throw new Error(`Failed to sync tasks: ${error.message}`);
         }
     }
-    updateTasksFromBluetooth(data) {
-        // Assuming the data is a JSON string of task objects
 
-        const receivedTasks = JSON.parse(data);
-        this.tasks = receivedTasks.map(task => new Task(task.title, task.completed));
-        taskViewClass.renderTask();
+    updateTasksFromBluetooth(data) {
+        try {
+            if (!data) {
+                throw new Error('No data received');
+            }
+            const receivedTasks = JSON.parse(data);
+            if (!Array.isArray(receivedTasks)) {
+                throw new Error('Received data is not an array');
+            }
+            this.tasks = receivedTasks.map(task => {
+                if (!task.title) {
+                    throw new Error('Task missing title');
+                }
+                return new Task(task.title, !!task.completed);
+            });
+            if (typeof taskViewClass?.renderTask === 'function') {
+                taskViewClass.renderTask();
+            }
+        } catch (error) {
+            throw new Error(`Task update failed: ${error.message}`);
+        }
     }
 
-    sendTasksToBluetooth(tasks) {
-        const data = JSON.stringify(tasks);
-        console.log('Sending data to Bluetooth device:', data);
+    async sendTasksToBluetooth(tasks) {
+        if (!this.isBluetoothSupported) {
+            throw new Error('Web Bluetooth is not supported');
+        }
+
+        try {
+            if (!Array.isArray(tasks)) {
+                throw new Error('Tasks must be an array');
+            }
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{ services: ['send-data'] }],
+                optionalServices: ['send-data']
+            });
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('send-data');
+            const characteristic = await service.getCharacteristic('task-characteristic');
+            const data = JSON.stringify(tasks);
+            const encoder = new TextEncoder();
+            await characteristic.writeValue(encoder.encode(data));
+        } catch (error) {
+            throw new Error(`Failed to send tasks: ${error.message}`);
+        }
     }
 }
-
 class taskView {
     constructor(taskListClass) {
         this.taskListClass = taskListClass;
