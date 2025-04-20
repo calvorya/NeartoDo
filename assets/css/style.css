@@ -1,0 +1,36 @@
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f8f9fa;
+    --text-color: #ffffff;
+    --primary-50: #f0f9ff;
+    --primary-200: #93d5fd;
+    --primary-300: #60c6db;
+    --primary-400: #30b1db;
+    --primary-500: #009eeb;
+    --primary-600: #0088d8;
+    --primary-700: #0077c2;
+    --primary-800: #0066ac;
+    --primary-900: #005fa3;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.btn {
+    background-color: var(--primary-500);
+    color: var(--text-color);
+}
+
+#sync-btn {
+    position: absolute;
+    left: 1em;
+    bottom: 1em;
+}
+
+.completed {
+    text-decoration: line-through;
+    background-color: var(--primary-900) !important;
+}

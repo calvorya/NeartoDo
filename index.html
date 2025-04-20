@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeartoDo - Bluetooth-Powered Shared To-Do List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="assets/js/script.js"></script>
+</head>
+
+<body class="bg-gray-900 justify-center items-center">
+    <div class="container-fluid mx-auto bg-gray-900 p-4 bg-dark shadow-md">
+        <h1 class="text-2xl font-bold text-white">NeartoDo</h1>
+        <p class="text-gray-400">Bluetooth-Powered Shared To-Do List</p>
+    </div>
+    <div class="container-fluid mt-5 justify-center items-center flex">
+        <div class="bg-gray-800 p-4 rounded-md justify-center items-center">
+            <input type="text" class=" p-2 rounded-md border-2 border-gray-300 text-black" id="task-input"
+                placeholder="Add a new task">
+            <button class="mt-2 btn px-4 py-2 text-white rounded-md bg-primary-500" id="add-button">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="container-fluid mt-5 justify-center items-center flex w-full">
+        <div class="bg-gray-800 p-4 rounded-md justify-center items-center w-full" id="task-list">
+
+        </div>
+    </div>
+    <button id="sync-btn" class="btn px-4 py-2 text-white rounded-md bg-primary-500">
+        <i class="fas fa-sync"></i>
+    </button>
+
+</html>
